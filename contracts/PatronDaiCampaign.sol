@@ -1,19 +1,18 @@
 pragma solidity ^0.5.0;
 
 import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/IERC20.sol";
-
 import "../node_modules/compound-protocol/contracts/CErc20.sol";
 
 contract PatronDaiCampaign is Exponential {
     event PatronDeposit(address indexed patron, uint256 amount);
     event PatronWithdraw(address indexed patron, uint256 amount);
-    event RaiserWithdraw(uint256 amount);
+    event OwnerWithdraw(uint256 amount);
     event Closed(uint256 raisedDai);
 
-    modifier onlyRaiser() {
+    modifier onlyOwner() {
         require(
-            msg.sender == _raiser,
-            "PatronDaiCampaign::onlyRaiser you're not the raiser"
+            msg.sender == _owner,
+            "PatronDaiCampaign::onlyOwner: You're not the owner"
         );
         _;
     }
@@ -24,7 +23,7 @@ contract PatronDaiCampaign is Exponential {
     address _cdaiAddress;
     CErc20 _CDAI;
 
-    address _raiser;
+    address _owner;
     uint256 _daiRaised;
 
     struct Patron {
@@ -38,16 +37,14 @@ contract PatronDaiCampaign is Exponential {
 
     bool public isClosed;
 
-    constructor(address daiAddress, address cdaiAddress, address raiser)
-        public
-    {
+    constructor(address daiAddress, address cdaiAddress, address owner) public {
         _DAI = IERC20(daiAddress);
         _daiAddress = daiAddress;
 
         _CDAI = CErc20(cdaiAddress);
         _cdaiAddress = cdaiAddress;
 
-        _raiser = raiser;
+        _owner = owner;
         _DAI.approve(_cdaiAddress, (2**256 - 1));
     }
 
@@ -61,13 +58,10 @@ contract PatronDaiCampaign is Exponential {
     }
 
     function support(uint256 amount) external {
+        require(!isClosed, "PatronDaiCampaign::support: Campaign is closed");
         require(
-            !isClosed,
-            "PatronDaiCampaign::support campaign already closed"
-        );
-        require(
-            msg.sender != _raiser,
-            "PatronDaiCampaign::support the funds raiser is not allowed to deposit"
+            msg.sender != _owner,
+            "PatronDaiCampaign::support: The fund owner is not allowed to deposit"
         );
         require(
             _DAI.transferFrom(msg.sender, address(this), amount),
@@ -122,7 +116,7 @@ contract PatronDaiCampaign is Exponential {
         emit PatronWithdraw(msg.sender, withdrawnSupportingDaiAmount);
     }
 
-    function withdraw(uint256 amount) external onlyRaiser {
+    function withdraw(uint256 amount) external onlyOwner {
         uint256 cRate = _CDAI.exchangeRateCurrent();
         uint256 cDaiAmount = _CDAI.balanceOf(address(this));
         uint256 daiAmount = (cRate * cDaiAmount) / (10**18);
@@ -132,18 +126,18 @@ contract PatronDaiCampaign is Exponential {
             "PatronDaiCampaign::withdraw you greedy bastard"
         );
         _CDAI.redeemUnderlying(amount);
-        _DAI.transfer(_raiser, amount);
-        emit RaiserWithdraw(amount);
+        _DAI.transfer(_owner, amount);
+        emit OwnerWithdraw(amount);
     }
 
-    function close() external onlyRaiser {
+    function close() external onlyOwner {
         emit Closed(_daiRaised);
     }
 
     // Getters
 
-    function getRaiser() external view returns (address) {
-        return _raiser;
+    function getOwner() external view returns (address) {
+        return _owner;
     }
 
     function getDaiRaised() external view returns (uint256) {
