@@ -1,8 +1,9 @@
 pragma solidity ^0.5.0;
 
 import {PatronDaiCampaign} from "./PatronDaiCampaign.sol";
+import "@openzeppelin/upgrades/contracts/Initializable.sol";
 
-contract PatronDaiCampaignsRegistry {
+contract PatronDaiCampaignsRegistry is Initializable {
     event CampaignRegistration(uint256 campaignId, address campaignContract);
 
     mapping(uint256 => address) campaigns;
@@ -11,7 +12,10 @@ contract PatronDaiCampaignsRegistry {
     address daiAddress;
     address cDaiAddress;
 
-    constructor(address _daiAddress, address _cDaiAddress) public {
+    function initialize(address _daiAddress, address _cDaiAddress)
+        public
+        initializer
+    {
         daiAddress = _daiAddress;
         cDaiAddress = _cDaiAddress;
     }
