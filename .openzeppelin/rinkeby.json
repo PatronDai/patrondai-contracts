@@ -112,6 +112,11 @@
         "implementation": "0x426150425759e2a25D92E63218c65E23bCEa6e05",
         "admin": "0x88535209CC4B4C6A184b38e2E76763A371db74f1",
         "kind": "Upgradeable"
+      },
+      {
+        "address": "0xCc7E71810Bd3bd7be0E0096d9F397ce99815574b",
+        "kind": "NonProxy",
+        "bytecodeHash": "c2ee259866c1af140d66e12ff7edd5991a4c1a9e505cf12a3ec5097d56dc3948"
       }
     ]
   },
