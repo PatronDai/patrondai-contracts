@@ -1,0 +1,19 @@
+{
+  "name": "patrondai-contracts",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "@openzeppelin/cli": "^2.8.0-rc.0",
+    "@openzeppelin/contracts": "3.0.0-beta.0",
+    "@openzeppelin/contracts-ethereum-package": "^2.4.0",
+    "compound-protocol": "https://github.com/compound-finance/compound-protocol.git",
+    "typechain-target-ethers": "^1.0.3"
+  },
+  "scripts": {
+    "oz": "oz",
+    "build": "oz compile",
+    "deploy": "oz deploy",
+    "postinstall": "yarn build"
+  }
+}
