@@ -14,6 +14,6 @@
     "oz": "oz",
     "build": "oz compile",
     "deploy": "oz deploy",
-    "postinstall": "yarn build"
+    "postinstall": "yarn oz link @openzeppelin/contracts-ethereum-package;yarn build"
   }
 }
