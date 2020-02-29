@@ -3,3 +3,4 @@ typechain-build/
 build/
 
 package-lock.json
+secrets.json

@@ -7,6 +7,7 @@
     "@openzeppelin/cli": "^2.8.0-rc.0",
     "@openzeppelin/contracts": "3.0.0-beta.0",
     "@openzeppelin/contracts-ethereum-package": "^2.4.0",
+    "@truffle/hdwallet-provider": "^1.0.32",
     "compound-protocol": "https://github.com/compound-finance/compound-protocol.git",
     "typechain-target-ethers": "^1.0.3"
   },
@@ -14,6 +15,6 @@
     "oz": "oz",
     "build": "oz compile",
     "deploy": "oz deploy",
-    "postinstall": "yarn oz link @openzeppelin/contracts-ethereum-package;yarn build"
+    "postinstall": "yarn build"
   }
 }
