@@ -122,7 +122,7 @@ contract PatronDaiCampaign is Exponential {
         emit PatronWithdraw(msg.sender, withdrawnSupportingDaiAmount);
     }
 
-    function withdraw(uint256 amount) external {
+    function withdraw(uint256 amount) external onlyRaiser {
         uint256 cRate = _CDAI.exchangeRateCurrent();
         uint256 cDaiAmount = _CDAI.balanceOf(address(this));
         uint256 daiAmount = (cRate * cDaiAmount) / (10**18);
