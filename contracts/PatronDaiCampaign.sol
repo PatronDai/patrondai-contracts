@@ -5,17 +5,15 @@ import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/IERC20.so
 import "../node_modules/compound-protocol/contracts/CErc20.sol";
 
 contract PatronDaiCampaign is Exponential {
-    event SupporterDeposit(address indexed investor, uint256 amount);
-    event SupporterWithdraw(address indexed investor, uint256 amount);
-
-    event Announcement(bytes32 mediumPostUUID, bytes32 bodyHash);
+    event PatronDeposit(address indexed patron, uint256 amount);
+    event PatronWithdraw(address indexed patron, uint256 amount);
     event RaiserWithdraw(uint256 amount);
     event Closed(uint256 raisedDai);
 
     modifier onlyRaiser() {
         require(
             msg.sender == _raiser,
-            "PatronDaiCampaign::onlyRaiser you're not the raiser, u squirvel"
+            "PatronDaiCampaign::onlyRaiser you're not the raiser"
         );
         _;
     }
@@ -29,14 +27,14 @@ contract PatronDaiCampaign is Exponential {
     address _raiser;
     uint256 _daiRaised;
 
-    struct Supporter {
+    struct Patron {
         uint256 daiBalance;
         uint256 collateralBalance;
         uint256 lastCapitalization;
         uint256 capitalized;
     }
 
-    mapping(address => Supporter) public _supporters;
+    mapping(address => Patron) public _patrons;
 
     bool public isClosed;
 
@@ -50,15 +48,16 @@ contract PatronDaiCampaign is Exponential {
         _cdaiAddress = cdaiAddress;
 
         _raiser = raiser;
+        _DAI.approve(_cdaiAddress, (2**256 - 1));
     }
 
     function capitalizeInternal(address addr) internal {
         uint256 cRate = _CDAI.exchangeRateCurrent();
-        uint256 cRateDiff = cRate - _supporters[addr].lastCapitalization;
-        _supporters[addr].capitalized +=
-            cRateDiff *
-            _supporters[addr].collateralBalance;
-        _supporters[addr].lastCapitalization = cRate;
+        uint256 cRateDiff = cRate - _patrons[addr].lastCapitalization;
+        _patrons[addr].capitalized +=
+            (cRateDiff * _patrons[addr].collateralBalance) /
+            (10**18);
+        _patrons[addr].lastCapitalization = cRate;
     }
 
     function support(uint256 amount) external {
@@ -68,7 +67,7 @@ contract PatronDaiCampaign is Exponential {
         );
         require(
             msg.sender != _raiser,
-            "PatronDaiCampaign::support the founds raiser is not allowed to deposit"
+            "PatronDaiCampaign::support the funds raiser is not allowed to deposit"
         );
         require(
             _DAI.transferFrom(msg.sender, address(this), amount),
@@ -77,7 +76,7 @@ contract PatronDaiCampaign is Exponential {
 
         capitalizeInternal(msg.sender);
 
-        _supporters[msg.sender].daiBalance += amount;
+        _patrons[msg.sender].daiBalance += amount;
         _daiRaised += amount;
 
         uint256 cRate = _CDAI.exchangeRateCurrent();
@@ -93,30 +92,40 @@ contract PatronDaiCampaign is Exponential {
         // todo: do not ignore errors, it's bad
 
         _CDAI.mint(amount);
-        _supporters[msg.sender].collateralBalance = mintTokens;
-        emit SupporterDeposit(msg.sender, amount);
+        _patrons[msg.sender].collateralBalance += mintTokens;
+        emit PatronDeposit(msg.sender, amount);
     }
 
     function stopSupporting(uint256 withdrawnSupportingDaiAmount) external {
         require(
-            _supporters[msg.sender].daiBalance >= withdrawnSupportingDaiAmount,
+            _patrons[msg.sender].daiBalance >= withdrawnSupportingDaiAmount,
             "PatronDaiCampaign::stopSupporting you can't withdraw more than you putted in"
         );
 
         capitalizeInternal(msg.sender);
+        uint256 cRate = _CDAI.exchangeRateCurrent();
 
         _CDAI.redeemUnderlying(withdrawnSupportingDaiAmount);
         _DAI.transfer(msg.sender, withdrawnSupportingDaiAmount);
-        _supporters[msg.sender].daiBalance -= withdrawnSupportingDaiAmount;
-        _daiRaised -= withdrawnSupportingDaiAmount;
+        _patrons[msg.sender].daiBalance -= withdrawnSupportingDaiAmount;
 
-        emit SupporterWithdraw(msg.sender, withdrawnSupportingDaiAmount);
+        MathError err;
+        uint256 mintTokens;
+
+        (err, mintTokens) = divScalarByExpTruncate(
+            withdrawnSupportingDaiAmount,
+            Exp({mantissa: cRate})
+        );
+        _patrons[msg.sender].collateralBalance -= mintTokens;
+
+        _daiRaised -= withdrawnSupportingDaiAmount;
+        emit PatronWithdraw(msg.sender, withdrawnSupportingDaiAmount);
     }
 
     function withdraw(uint256 amount) external {
         uint256 cRate = _CDAI.exchangeRateCurrent();
         uint256 cDaiAmount = _CDAI.balanceOf(address(this));
-        uint256 daiAmount = cRate * cDaiAmount;
+        uint256 daiAmount = (cRate * cDaiAmount) / (10**18);
         uint256 available = daiAmount - _daiRaised;
         require(
             amount <= available,
@@ -125,13 +134,6 @@ contract PatronDaiCampaign is Exponential {
         _CDAI.redeemUnderlying(amount);
         _DAI.transfer(_raiser, amount);
         emit RaiserWithdraw(amount);
-    }
-
-    function announce(bytes32 mediumPostUUID, bytes32 bodyHash)
-        external
-        onlyRaiser
-    {
-        emit Announcement(mediumPostUUID, bodyHash);
     }
 
     function close() external onlyRaiser {
@@ -156,33 +158,20 @@ contract PatronDaiCampaign is Exponential {
         return _cdaiAddress;
     }
 
-    function getSupporterDaiBalance(address supporter)
+    function getPatronDaiBalance(address patron)
         external
         view
         returns (uint256)
     {
-        return _supporters[supporter].daiBalance;
+        return _patrons[patron].daiBalance;
     }
 
-    function getDaiBalance() external view returns (uint256) {
-        return this.getSupporterDaiBalance(msg.sender);
-    }
-
-    function getSupporterCollateralBalance(address supporter)
+    function getPatronCollateralBalance(address patron)
         external
         view
         returns (uint256)
     {
-        return _supporters[supporter].collateralBalance;
-    }
-
-    function getCollateralBalance() external view returns (uint256) {
-        return this.getSupporterCollateralBalance(msg.sender);
-    }
-
-    function getTotalSupport() external returns (uint256) {
-        capitalizeInternal(msg.sender);
-        return _supporters[msg.sender].capitalized;
+        return _patrons[patron].collateralBalance;
     }
 
 }
