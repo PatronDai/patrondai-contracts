@@ -1,11 +1,11 @@
 {
   "contracts": {
     "PatronDaiCampaignsRegistry": {
-      "address": "0x426150425759e2a25D92E63218c65E23bCEa6e05",
-      "constructorCode": "608060405234801561001057600080fd5b50611e97806100206000396000f3fe",
-      "bodyBytecodeHash": "af233d554fa2fb9276a254b90df9e95ea0f9567025ffe8572096ed8a0805b713",
-      "localBytecodeHash": "4d8cc288927018392b52d824166ce0becaa9b867b7bd8b871597d02b2bb2dca5",
-      "deployedBytecodeHash": "4d8cc288927018392b52d824166ce0becaa9b867b7bd8b871597d02b2bb2dca5",
+      "address": "0x7A67090f5E1AfeA1F76cAB5424Ea23AA569b5dA8",
+      "constructorCode": "608060405234801561001057600080fd5b50612199806100206000396000f3fe",
+      "bodyBytecodeHash": "4488291331cda0ccbaf46222937d5caebadc97298311968168cbfc2b429b1656",
+      "localBytecodeHash": "c2ee259866c1af140d66e12ff7edd5991a4c1a9e505cf12a3ec5097d56dc3948",
+      "deployedBytecodeHash": "c2ee259866c1af140d66e12ff7edd5991a4c1a9e505cf12a3ec5097d56dc3948",
       "types": {
         "t_bool": {
           "id": "t_bool",
@@ -65,7 +65,7 @@
           "contract": "PatronDaiCampaignsRegistry",
           "path": "contracts/PatronDaiCampaignsRegistry.sol",
           "label": "campaigns",
-          "astId": 548,
+          "astId": 623,
           "type": "t_mapping<t_address>",
           "src": "284:37:3"
         },
@@ -73,7 +73,7 @@
           "contract": "PatronDaiCampaignsRegistry",
           "path": "contracts/PatronDaiCampaignsRegistry.sol",
           "label": "campaignsCount",
-          "astId": 550,
+          "astId": 625,
           "type": "t_uint256",
           "src": "327:22:3"
         },
@@ -81,7 +81,7 @@
           "contract": "PatronDaiCampaignsRegistry",
           "path": "contracts/PatronDaiCampaignsRegistry.sol",
           "label": "daiAddress",
-          "astId": 552,
+          "astId": 627,
           "type": "t_address",
           "src": "356:18:3"
         },
@@ -89,7 +89,7 @@
           "contract": "PatronDaiCampaignsRegistry",
           "path": "contracts/PatronDaiCampaignsRegistry.sol",
           "label": "cDaiAddress",
-          "astId": 554,
+          "astId": 629,
           "type": "t_address",
           "src": "380:19:3"
         }
@@ -107,16 +107,11 @@
   "proxies": {
     "squirvels-contracts/PatronDaiCampaignsRegistry": [
       {
-        "address": "0x2D74B6F7a1A3b9135929B251B5Fa2b313E247f32",
+        "address": "0x693d5cAc332D91e4Fb408329e2a34e66645175fd",
         "version": "1.0.0",
-        "implementation": "0x426150425759e2a25D92E63218c65E23bCEa6e05",
-        "admin": "0x88535209CC4B4C6A184b38e2E76763A371db74f1",
+        "implementation": "0x7A67090f5E1AfeA1F76cAB5424Ea23AA569b5dA8",
+        "admin": "0x5ef83Ee5a030b19224a6D2D901BCa05db372Bf6f",
         "kind": "Upgradeable"
-      },
-      {
-        "address": "0xCc7E71810Bd3bd7be0E0096d9F397ce99815574b",
-        "kind": "NonProxy",
-        "bytecodeHash": "c2ee259866c1af140d66e12ff7edd5991a4c1a9e505cf12a3ec5097d56dc3948"
       }
     ]
   },
@@ -129,9 +124,6 @@
     }
   },
   "proxyAdmin": {
-    "address": "0x88535209CC4B4C6A184b38e2E76763A371db74f1"
-  },
-  "provider": {
-    "address": "0x37C98bb79Ced5b08e7828590cf028f8cb2f81147"
+    "address": "0x5ef83Ee5a030b19224a6D2D901BCa05db372Bf6f"
   }
 }

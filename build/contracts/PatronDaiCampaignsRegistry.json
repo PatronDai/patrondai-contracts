@@ -1220,5 +1220,13 @@
       "runs": 200
     },
     "evmVersion": "petersburg"
+  },
+  "networks": {
+    "4": {
+      "links": {},
+      "events": {},
+      "address": "0x693d5cAc332D91e4Fb408329e2a34e66645175fd",
+      "updated_at": 1583021404045
+    }
   }
 }
